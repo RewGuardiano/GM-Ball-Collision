@@ -19,7 +19,7 @@ public class ObjectManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < spheres.Count - 1; i++)
+        for (int i = 0; i < spheres.Count; i++)
         {
             SpherePhysics sphere = spheres[i];
             foreach (PlaneScript plane in planes)
@@ -29,7 +29,7 @@ public class ObjectManager : MonoBehaviour
                     sphere.ResolveCollisionWith(plane);
                 }
             }
-
+            if(i< spheres.Count - 1)
             for (int j = i + 1; j < spheres.Count; j++)
             {
                SpherePhysics sphere2 = spheres[j];
