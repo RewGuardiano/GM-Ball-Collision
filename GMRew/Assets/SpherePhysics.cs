@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class SpherePhysics : MonoBehaviour
 {
-    public Vector3 previousVelocity, previousPosition; 
+    public Vector3 previousVelocity, previousPosition;
+    public float TimeofImpact; 
     Vector3 velocity, acceleration;
     public float mass = 1.0f;
     float gravity = 9.81f;
@@ -36,14 +37,44 @@ public class SpherePhysics : MonoBehaviour
 
     public void ResolveCollisionWith(PlaneScript planeScript)
     {
-        transform.position -= velocity * Time.deltaTime;
 
-        Vector3 y = Utility.parallel(velocity, planeScript.Normal);
-        Vector3 x = Utility.perpendicular(velocity, planeScript.Normal);
+        // Calculate current distance from the plane
+        float currentDistance = planeScript.Distance(this);
+        float oldDistance = Vector3.Dot(previousPosition - planeScript.Position, planeScript.Normal) - Radius;
 
-        Vector3 newVelocity = (x - CoeficientOfRestitution * y);
+        // Check if the sphere was previously intersecting with the plane
+        if (oldDistance > 0 && currentDistance <= 0)
+        {
+            // Calculate time of impact
+            TimeofImpact = oldDistance / (oldDistance - currentDistance) * Time.deltaTime;
 
-        velocity = newVelocity;
+            Vector3 newPosition = previousPosition + TimeofImpact * velocity;
+
+
+
+            // Calculate position of impact using the impact velocity
+            Vector3 positionOfImpact = previousPosition + (TimeofImpact * velocity);
+
+            // Recalculate velocity at the time of impact
+            Vector3 impactVelocity = previousVelocity + acceleration * TimeofImpact;
+
+            // Resolve collision by moving the sphere out of the plane
+            transform.position = positionOfImpact - planeScript.Normal * Radius; // Move out by radius
+
+            // Calculate new velocity after collision
+            Vector3 y = Utility.parallel(impactVelocity, planeScript.Normal);
+            Vector3 x = Utility.perpendicular(impactVelocity, planeScript.Normal);
+
+            // Apply restitution to the normal component of velocity
+            Vector3 newVelocity = (x - CoeficientOfRestitution * y);
+
+            velocity = newVelocity + acceleration * (Time.deltaTime - TimeofImpact);
+            transform.position += velocity * (Time.deltaTime - TimeofImpact);
+
+            
+        }
+
+
     }
 
     public bool isCollidingWith(SpherePhysics otherSphere)
@@ -56,7 +87,9 @@ public class SpherePhysics : MonoBehaviour
         //calculating time of impact
         float D1 = Vector3.Distance(sphere2.transform.position, transform.position) - (sphere2.Radius + Radius);
         float oldDistance = Vector3.Distance(sphere2.previousPosition, previousPosition) - (sphere2.Radius + Radius);
+       
 
+     
         print("Distance: " + D1 + "Old Distance: " + oldDistance); 
     
         Vector3 normal = (transform.position - sphere2.transform.position).normalized;
@@ -77,6 +110,12 @@ public class SpherePhysics : MonoBehaviour
 
         sphere2.slaveCollisionResolution(sphere2.transform.position, sphere2Perpendicular + v2 * sphere2.CoeficientOfRestitution);
         //asking other sphere to change
+
+       
+
+
+
+
     }
 
     private void slaveCollisionResolution(Vector3 position, Vector3 newVelocity)
