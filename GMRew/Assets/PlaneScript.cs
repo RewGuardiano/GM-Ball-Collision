@@ -17,11 +17,24 @@ public class PlaneScript : MonoBehaviour
         } 
     }
 
+    public Vector3 Position
+    {
+        get { return transform.position; }
+        internal set { transform.position = value; }
+    }
+
     internal bool isCollidingWith(SpherePhysics spherePhysics)
     {
         distance =  Vector3.Dot(spherePhysics.transform.position - point, normal);
 
         return distance < spherePhysics.Radius;
+    }
+
+    internal float Distance(SpherePhysics spherePhysics)
+    {
+        distance = Vector3.Dot(spherePhysics.transform.position - point, normal);
+
+        return distance - spherePhysics.Radius;
     }
 
     // Start is called before the first frame update
