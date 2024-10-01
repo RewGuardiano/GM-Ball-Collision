@@ -94,23 +94,25 @@ public class SpherePhysics : MonoBehaviour
 
     public void ResolveCollisionWith(SpherePhysics sphere2)
     {
-        //calculating time of impact
-        float D1 = Vector3.Distance(sphere2.transform.position, transform.position) - (sphere2.Radius + Radius);
-        float oldDistance = Vector3.Distance(sphere2.previousPosition, previousPosition) - (sphere2.Radius + Radius);
-       
 
-       float timeOfImpact = -oldDistance / (currentDistance - oldDistance) * Time.deltaTime;
-          print("TOI: " + timeOfImpact + "deltaTime: " + Time.deltaTime);
 
-          //After getting Time of Impact, calculate position of spheres at impact for both spheres. 
-          Vector3 sphere1POI = previousPostion + velocity + timeOfImpact;
-          Vector3 sphere2POI = sphere2.previousPosition + sphere2.velocity * timeOfImpact;
+        //calculate time of impact
+        float currentDistance = Vector3.Distance(sphere2.transform.position, transform.position) - (sphere2.Radius + Radius);
+        float previousDistance = Vector3.Distance(sphere2.previousPosition, previousPosition) - (sphere2.Radius + Radius);
 
-          //Recalculate Velocity for both spheres from previous postion, but using timeOfImpact instead of deltaTime
-          Vector3 Sphere1VelocityAtImpact = previousVelocity + (acceleration * timeOfImpact);
-          Vector3 Sphere2VelocityAtImpact = sphere2.previousVelocity + (sphere2.acceleration * timeOfImpact);
 
-          //normal of collision at time of impact 
+        float timeOfImpact = -previousDistance / (currentDistance - previousDistance) * Time.deltaTime;
+        print("TOI: " + timeOfImpact + "deltaTime: " + Time.deltaTime);
+
+        //After getting Time of Impact, calculate position of spheres at impact for both spheres. 
+        Vector3 sphere1POI = previousPosition + velocity * timeOfImpact;
+        Vector3 sphere2POI = sphere2.previousPosition + sphere2.velocity * timeOfImpact;
+
+        //Recalculate Velocity for both spheres from previous postion, but using timeOfImpact instead of deltaTime
+        Vector3 Sphere1VelocityAtImpact = previousVelocity + (acceleration * timeOfImpact);
+        Vector3 Sphere2VelocityAtImpact = sphere2.previousVelocity + (sphere2.acceleration * timeOfImpact);
+
+        //normal of collision at time of impact 
         Vector3 normal = (sphere1POI - sphere2POI).normalized;
 
         Vector3 sphere1Parallel = Utility.parallel(velocity, normal);
@@ -122,12 +124,12 @@ public class SpherePhysics : MonoBehaviour
         Vector3 u2 = sphere2Parallel;
 
         // velocities after TOI parrallel to the normal 
-        Vector3 v1 = ((mass - sphere2.mass)/(mass + sphere2.mass)) * u1 + ((sphere2.mass*2)/(mass + sphere2.mass))*u2;
+        Vector3 v1 = ((mass - sphere2.mass) / (mass + sphere2.mass)) * u1 + ((sphere2.mass * 2) / (mass + sphere2.mass)) * u2;
         Vector3 v2 = (-(mass - sphere2.mass) / (mass + sphere2.mass)) * u2 + ((mass * 2) / (mass + sphere2.mass)) * u1;
 
         velocity = sphere1Perpendicular + v1 * CoeficientOfRestitution;
         //Velocity After Time of Impact
-         Vector3 sphere1VelocityAfterTOI = sphere1Perpendicular + v1 * CoeficientOfRestitution;
+        Vector3 sphere1VelocityAfterTOI = sphere1Perpendicular + v1 * CoeficientOfRestitution;
         Vector3 sphere2VelocityAfterTOI = sphere2Perpendicular + v2 * CoeficientOfRestitution;
 
         //calculate velocity from impact time to time of detection (remaining time after impact)
@@ -137,14 +139,14 @@ public class SpherePhysics : MonoBehaviour
         velocity = sphere1VelocityAfterTOI + acceleration * timeRemaining;
         Vector3 sphere2Velocity = sphere2VelocityAfterTOI + sphere2.acceleration * timeRemaining;
 
-          //update this sphere1 first
+        //update this sphere1 first
         transform.position = sphere1POI + sphere1VelocityAfterTOI * timeRemaining;
 
         //calculate othersphere position
-        Vector3 sphere2ResolvedPosition = sphere2POI + sphere2VelocityAfterTOI * timeRemaining; 
+        Vector3 sphere2ResolvedPosition = sphere2POI + sphere2VelocityAfterTOI * timeRemaining;
 
         //Checking for overlap between spheres after resolution
-        If(Vector3.Distance(transform.position,sphere2ResolvedPosition) < (Radius + sphere2.Radius))
+        if(Vector3.Distance(transform.position, sphere2ResolvedPosition) < (Radius + sphere2.Radius))
         {
             print("HELP");
         }
