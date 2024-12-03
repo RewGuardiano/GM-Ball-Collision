@@ -25,9 +25,8 @@ public class PlaneScript : MonoBehaviour
 
     internal bool isCollidingWith(SpherePhysics spherePhysics)
     {
-        distance =  Vector3.Dot(spherePhysics.transform.position - point, normal);
-
-        return distance < spherePhysics.Radius;
+        distance = Vector3.Dot(spherePhysics.transform.position - point, normal);
+        return distance <= spherePhysics.Radius;
     }
 
     internal float Distance(SpherePhysics spherePhysics)

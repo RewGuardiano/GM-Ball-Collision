@@ -35,8 +35,12 @@ public class SpherePhysics : MonoBehaviour
 
     }
 
+
+
     public void ResolveCollisionWith(PlaneScript planeScript)
     {
+
+
 
         // Calculate current distance from the plane
         float currentDistance = planeScript.Distance(this);
