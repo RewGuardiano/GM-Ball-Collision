@@ -7,7 +7,7 @@ public class ObjectManager : MonoBehaviour
 {
     List<SpherePhysics> spheres;
     List<PlaneScript> planes;
-    
+
 
     // Start is called before the first frame update
     void Start()
@@ -29,13 +29,16 @@ public class ObjectManager : MonoBehaviour
                     sphere.ResolveCollisionWith(plane);
                 }
             }
-            if(i< spheres.Count - 1)
-            for (int j = i + 1; j < spheres.Count; j++)
+
+            if (i < (spheres.Count - 1))
             {
-               SpherePhysics sphere2 = spheres[j];
-                if (sphere2.isCollidingWith(sphere))
+                for (int j = i + 1; j < spheres.Count; j++)
                 {
-                    sphere.ResolveCollisionWith(sphere2);
+                    SpherePhysics sphere2 = spheres[j];
+                    if (sphere2.isCollidingWithSphere(sphere))
+                    {
+                        sphere.ResolveCollisionWithSphere(sphere2);
+                    }
                 }
             }
         }
