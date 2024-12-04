@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,32 +7,37 @@ using UnityEngine;
 public class SpherePhysics : MonoBehaviour
 {
     public Vector3 previousVelocity, previousPosition;
-    public float TimeofImpact; 
-    Vector3 velocity, acceleration;
+    public float TimeofImpact;
+    public Vector3 velocity, acceleration;
     public float mass = 1.0f;
     float gravity = 9.81f;
     float CoeficientOfRestitution = 0.8f;
 
-    Vector3 newVelocity1, newVelocity2; 
-    
+    Vector3 newVelocity1, newVelocity2;
+
     public float Radius { get { return transform.localScale.x / 2.0f; } private set { transform.localScale = value * 2 * Vector3.one; } }
 
     // Start is called before the first frame update
     void Start()
     {
+        acceleration = gravity * Vector3.down;
     }
 
     // Update is called once per frame
     void Update()
     {
-        previousVelocity = velocity;
-        previousPosition = transform.position;
-    
-        acceleration = gravity * Vector3.down;
 
+       // Store previous state
+    previousVelocity = velocity;
+    previousPosition = transform.position;
+
+        // Update velocity
+        acceleration = Vector3.zero; // Reset acceleration
         velocity += acceleration * Time.deltaTime;
 
-        transform.position += velocity * Time.deltaTime;
+    // Update position
+    transform.position += velocity * Time.deltaTime;
+
 
     }
 
@@ -39,64 +45,50 @@ public class SpherePhysics : MonoBehaviour
 
     public void ResolveCollisionWith(PlaneScript planeScript)
     {
+        float currentDistance = planeScript.distanceFromSphere(this);
+        float previousDistance = Vector3.Dot(previousPosition - planeScript.Position, planeScript.Normal) - Radius;
 
+        // DEBUG
+        print("Distance: " + currentDistance + " Old Distance: " + previousDistance);
 
+        // Step 1) To check dividing by zero
+        float timeOfImpact = -previousDistance / (currentDistance - previousDistance) * Time.deltaTime;
+        // DEBUG print("TOI: " + timeOfImpact + " deltaTime: " + Time.deltaTime);
 
-        // Calculate current distance from the plane
-        float currentDistance = planeScript.Distance(this);
-        float oldDistance = Vector3.Dot(previousPosition - planeScript.Position, planeScript.Normal) - Radius;
+        // Step 2)
+        Vector3 positionOfImpact = previousPosition + (timeOfImpact * velocity);
 
-        // Check if the sphere was previously intersecting with the plane
-        if (oldDistance > 0 && currentDistance <= 0)
+        // Recalculate velocity using timeOfImpact
+        Vector3 velocityAtImpact = previousVelocity + (acceleration * timeOfImpact);
+
+        // Step 3) Resolve Collision
+        Vector3 normalComponent = Utility.parallel(velocityAtImpact, planeScript.Normal);
+        Vector3 perpendicularComponent = Utility.perpendicular(velocityAtImpact, planeScript.Normal);
+
+        Vector3 newVelocity = (perpendicularComponent - CoeficientOfRestitution * normalComponent);
+
+        // Calculate remaining time after impact
+        float timeRemaining = Time.deltaTime - timeOfImpact;
+
+        velocity = newVelocity + acceleration * timeRemaining;
+
+        // Check velocity is moving ball away from plane (IE same direction as normal +- 90 degrees)
+        if (Vector3.Dot(velocity, planeScript.Normal) < 0)
         {
-            // Calculate time of impact
-            TimeofImpact = -oldDistance / (currentDistance - oldDistance) * Time.deltaTime;
-
-    
-
-
-
-            // Calculate position of impact using the impact velocity
-            Vector3 positionOfImpact = previousPosition + (TimeofImpact * velocity);
-
-            // Recalculate velocity at the time of impact
-            Vector3 impactVelocity = previousVelocity + (acceleration * TimeofImpact);
-
-            // Calculate new velocity after collision
-            Vector3 y = Utility.parallel(impactVelocity, planeScript.Normal);
-            Vector3 x = Utility.perpendicular(impactVelocity, planeScript.Normal);
-
-            // Apply restitution to the normal component of velocity
-            Vector3 newVelocity = (x - CoeficientOfRestitution * y);
-
-            //Calculate velocity from impact time to time of detection (remaining time after impact) 
-            float timeRemaining = Time.deltaTime - TimeofImpact;
-
-            velocity = newVelocity + acceleration * timeRemaining;
-
-
-        //check velocity is moving ball away from plane (IE same direction as normal +- 90 degrees)
-            if (Vector3.Dot(velocity, planeScript.Normal) < 0)
-            { 
-              velocity = Utility.perpendicular(velocity, planeScript.Normal); 
-            };
-
-            transform.position = positionOfImpact + velocity * timeRemaining;
-
-
-
-            
+            velocity = Utility.perpendicular(velocity, planeScript.Normal);
         }
 
-
+        transform.position = positionOfImpact + velocity * timeRemaining;
     }
 
-    public bool isCollidingWith(SpherePhysics otherSphere)
+
+
+    public bool isCollidingWithSphere(SpherePhysics otherSphere)
     {
         return Vector3.Distance(otherSphere.transform.position, transform.position) < (otherSphere.Radius + Radius);
     }
 
-    public void ResolveCollisionWith(SpherePhysics sphere2)
+    public void ResolveCollisionWithSphere(SpherePhysics sphere2)
     {
 
 
@@ -150,7 +142,7 @@ public class SpherePhysics : MonoBehaviour
         Vector3 sphere2ResolvedPosition = sphere2POI + sphere2VelocityAfterTOI * timeRemaining;
 
         //Checking for overlap between spheres after resolution
-        if(Vector3.Distance(transform.position, sphere2ResolvedPosition) < (Radius + sphere2.Radius))
+        if (Vector3.Distance(transform.position, sphere2ResolvedPosition) < (Radius + sphere2.Radius))
         {
             print("HELP");
         }
@@ -158,7 +150,7 @@ public class SpherePhysics : MonoBehaviour
         sphere2.slaveCollisionResolution(sphere2.transform.position, sphere2Perpendicular + v2 * sphere2.CoeficientOfRestitution);
         //asking other sphere to change
 
-       
+
     }
 
     private void slaveCollisionResolution(Vector3 position, Vector3 newVelocity)

@@ -1,52 +1,57 @@
+
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlaneScript : MonoBehaviour
 {
-    
-    Vector3 point, normal;
-    float distance;
-    
+    private Vector3 point;
+    private Vector3 normal;
+    public float distance;
 
-    public Vector3 Normal { 
+    public Vector3 Normal
+    {
         get { return normal; }
-        private set { normal = value.normalized;
+        private set
+        {
+            normal = value.normalized;
             transform.up = normal;
-        } 
+        }
     }
 
     public Vector3 Position
     {
         get { return transform.position; }
-        internal set { transform.position = value; }
+        internal set
+        {
+            transform.position = value;
+        }
     }
 
     internal bool isCollidingWith(SpherePhysics spherePhysics)
     {
         distance = Vector3.Dot(spherePhysics.transform.position - point, normal);
-        return distance <= spherePhysics.Radius;
+        return distance < spherePhysics.Radius;
     }
 
-    internal float Distance(SpherePhysics spherePhysics)
+    internal float distanceFromSphere(SpherePhysics spherePhysics)
     {
         distance = Vector3.Dot(spherePhysics.transform.position - point, normal);
-
         return distance - spherePhysics.Radius;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        Normal = new Vector3(0, 1, 0.2f);
-
+        // Set the initial normal based on the plane's world orientation
+        normal = transform.up;
         point = transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        // Continuously update point and normal in case of changes in the plane's position or rotation
+        point = transform.position;
+        normal = transform.up;
     }
 }
