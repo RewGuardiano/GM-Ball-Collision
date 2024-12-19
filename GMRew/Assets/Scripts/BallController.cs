@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-
-    public float speed = 5f; // Movement speed multiplier
+    public float speed = 0.8f; // Movement speed multiplier
     public SpherePhysics spherePhysics; // Reference to SpherePhysics for velocity updates
 
     void Update()
     {
+        
+        Cursor.visible = false;
+
         // Get input from WASD or arrow keys
         float horizontal = Input.GetAxis("Horizontal"); // A/D or Left/Right
         float vertical = Input.GetAxis("Vertical");     // W/S or Up/Down
 
-        // Move the ball using its velocity
-        Vector3 movement = new Vector3(horizontal, 0f, vertical) * speed;
+        // Calculate the movement vector based on input
+        Vector3 movement = new Vector3(horizontal, 0f, vertical);
 
-        // Apply movement to the ball's velocity
+        // Apply movement as an additional force or velocity increment
         if (spherePhysics != null)
         {
-            spherePhysics.velocity += movement * Time.deltaTime;
+            // Apply the movement as an acceleration rather than directly modifying velocity
+            spherePhysics.AddForce(movement * speed);
         }
     }
-
 }
