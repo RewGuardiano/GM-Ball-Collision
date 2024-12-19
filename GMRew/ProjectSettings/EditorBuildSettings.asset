@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Pool Game.unity
+    guid: a9de754ddba587b4180432dfd0449fd2
+  - enabled: 1
+    path: Assets/Scenes/You Win Scene.unity
+    guid: ebc32803fcd0fa34681ab8d0f735c322
   m_configObjects: {}
