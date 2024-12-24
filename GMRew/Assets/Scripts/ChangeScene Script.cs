@@ -5,10 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class ChangeSceneScript : MonoBehaviour
 {
-   public void PlayAgainButton()
+
+    void Awake()
+    {
+        Cursor.visible = true;
+    }
+    public void PlayAgainButton()
     {
 
         SceneManager.LoadScene("Pool Game");
-
+        
     }
 }
