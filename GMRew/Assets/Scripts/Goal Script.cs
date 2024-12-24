@@ -8,9 +8,9 @@ public class GoalScript : MonoBehaviour
 {
     public int goalLimit = 5; // The number of goals required to change the scene
     private int currentGoalCount = 0; // Tracks the number of goals scored
-    public string nextSceneName = "You Win Scene"; // The name of the next scene to load
+    public string nextSceneName = "You Win Scene"; 
 
-    public PlaneScript goalPlane; // Reference to the goal's PlaneScript
+    public PlaneScript goalPlane; 
     public Text goalCounterText;
 
     private HashSet<SpherePhysics> scoredBalls = new HashSet<SpherePhysics>(); // Keeps track of balls that already scored

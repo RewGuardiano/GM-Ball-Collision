@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    public float speed = 0.8f; // Movement speed multiplier
+    public float speed = 0.8f; 
     public SpherePhysics spherePhysics; // Reference to SpherePhysics for velocity updates
 
     void Update()
@@ -19,7 +19,6 @@ public class BallController : MonoBehaviour
         // Calculate the movement vector based on input
         Vector3 movement = new Vector3(horizontal, 0f, vertical);
 
-        // Apply movement as an additional force or velocity increment
         if (spherePhysics != null)
         {
             // Apply the movement as an acceleration rather than directly modifying velocity
